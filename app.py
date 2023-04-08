@@ -36,15 +36,21 @@ class App(customtkinter.CTk):
         self.textbox.bind('<Return>', lambda event: self.correct_words())
         
 
+    def get_word_indicies(self, text, word):
+        indices = []
+        words = text.split()
+        start_index = 0
+        for char in range(len(words)):
+            if words[char].strip(",.") == word:
+                indices.append((start_index, start_index+len(words[char])))
+            start_index += len(words[char]) + 1
+        return indices
 
     def highlight_word(self):
-        word = text_list[self.word_to_highlight]
-        self.reading_text.tag_remove('activeLine', "1.0", 'end')
-        countVar = tkinter.StringVar()
-        pos = self.reading_text.search(f"\\m{word}\\M", '1.0', stopindex='end', regexp=True, count=countVar)
-        print(f'position={pos}')
-        self.reading_text.tag_add(word, pos, "%s + %sc"%(pos, countVar.get()))
-        self.reading_text.tag_configure(word, background='yellow')
+        pos = self.get_word_indicies(source_text, text_list[self.word_to_highlight])
+        if len(pos) > 1: 
+            self.reading_text.tag_add('addHighlight', f"0.{pos[0][0]}", f"0.{pos[0][1]}")
+        self.reading_text.tag_configure('addHighlight', background='yellow')
         self.word_to_highlight +=1
  
 
