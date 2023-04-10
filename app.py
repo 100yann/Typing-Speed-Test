@@ -2,6 +2,7 @@ import _tkinter
 import tkinter
 import customtkinter
 import time
+import re
 from source_text import all_texts
 
 customtkinter.set_appearance_mode('Dark')
@@ -21,12 +22,6 @@ class App(customtkinter.CTk):
         self.config(padx=50, pady=100)
 
         
-        self.textbox = customtkinter.CTkEntry(master=self,
-                                              height=300,
-                                              width=400,
-                                              )
-        self.textbox.place(relx=0.5, rely=0.5, anchor="center")
-        self.textbox.focus()
 
         self.reading_text = tkinter.Text(master=self,
         height=5,
@@ -38,9 +33,18 @@ class App(customtkinter.CTk):
         self.word_to_highlight = 0
         self.remove_index = 0
         self.highlight_word()
+
+        self.textbox = customtkinter.CTkTextbox(master=self,
+                                height=100,
+                                width=300,
+                                wrap='word',
+                                )
+        self.textbox.focus_set()
+        self.textbox.place(relx=0.5, rely=0.5, anchor="center")
         self.textbox.bind('<space>', lambda event: (self.return_text(), self.highlight_word()))
         self.textbox.bind('<Return>', lambda event: self.correct_words())
         self.timer()
+
 
 
 
@@ -77,7 +81,7 @@ class App(customtkinter.CTk):
 
 
     def return_text(self):
-        input_text = list(self.textbox.get().split())
+        input_text = list(self.textbox.get('0.0', 'end').split())
         return input_text
 
     def correct_words(self):
@@ -92,8 +96,7 @@ class App(customtkinter.CTk):
     def timer(self):
         global REMAINING_TIME
         REMAINING_TIME -= 1
-        print(REMAINING_TIME)
-        if REMAINING_TIME > 50:
+        if REMAINING_TIME > 0:
             self.after(1000, self.timer)
             self.entry = customtkinter.CTkEntry(master=self,
                                     placeholder_text=REMAINING_TIME,
