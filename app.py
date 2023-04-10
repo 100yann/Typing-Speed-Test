@@ -9,6 +9,7 @@ customtkinter.set_default_color_theme("green")
 
 source_text = all_texts[1]
 text_list = source_text.split()
+REMAINING_TIME = 60
 
 
 class App(customtkinter.CTk):
@@ -18,11 +19,14 @@ class App(customtkinter.CTk):
         self.geometry('800x800')
         self.title('Typing Speed Test')
         self.config(padx=50, pady=100)
+
+        
         self.textbox = customtkinter.CTkEntry(master=self,
                                               height=300,
                                               width=400,
                                               )
         self.textbox.place(relx=0.5, rely=0.5, anchor="center")
+        self.textbox.focus()
 
         self.reading_text = tkinter.Text(master=self,
         height=5,
@@ -36,7 +40,9 @@ class App(customtkinter.CTk):
         self.highlight_word()
         self.textbox.bind('<space>', lambda event: (self.return_text(), self.highlight_word()))
         self.textbox.bind('<Return>', lambda event: self.correct_words())
-        
+        self.timer()
+
+
 
     def get_word_indicies(self, word, func):
         if func == "add":
@@ -60,15 +66,14 @@ class App(customtkinter.CTk):
                 self.reading_text.tag_remove('highlightline', f"1.{previous_word_pos[0]}", f"1.{previous_word_pos[1]}")
             except _tkinter.TclError:
                 pass
-        
+
         word = text_list[self.word_to_highlight]
         word_pos = self.get_word_indicies(word, "add")
         starting_pos = word_pos[0]
         ending_pos = word_pos[1]
         self.reading_text.tag_add('highlightline', f"1.{starting_pos}", f"1.{ending_pos}")
         self.reading_text.tag_configure('highlightline', background='yellow')
-        self.word_to_highlight +=1
- 
+        self.word_to_highlight +=1  
 
 
     def return_text(self):
@@ -77,10 +82,26 @@ class App(customtkinter.CTk):
 
     def correct_words(self):
         text = self.return_text()
-        print(text)
         correct_words = 0
         for index, word in enumerate(text):
-            if word == source_text.split()[index]:
+            if word == text_list[index]:
                 correct_words +=1
-        print(correct_words)
+        return correct_words
 
+
+    def timer(self):
+        global REMAINING_TIME
+        REMAINING_TIME -= 1
+        print(REMAINING_TIME)
+        if REMAINING_TIME > 50:
+            self.after(1000, self.timer)
+            self.entry = customtkinter.CTkEntry(master=self,
+                                    placeholder_text=REMAINING_TIME,
+                                    bg_color='transparent',
+                                    width=30,
+                                    )
+            self.entry.place(relx=0.0, rely=0.0, anchor="nw")
+        else:
+            wpm = self.correct_words()
+            print(f'You can write {wpm} words per minute.')
+            self.textbox.configure(state='disabled')

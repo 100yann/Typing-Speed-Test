@@ -7,5 +7,4 @@ app = App()
 text = all_texts[1]
 
 
-
 app.mainloop()
