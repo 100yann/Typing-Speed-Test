@@ -72,26 +72,12 @@ class App(customtkinter.CTk):
         self.reading_text.tag_configure('highlight', background='yellow')
         words_and_indices[last_index] = [word, starting_pos, ending_pos]
 
-        
-
         if last_index > 0 and user_text[last_index-1] != text_list[last_index-1]:
             starting_pos, ending_pos = words_and_indices[last_index-1][1], words_and_indices[last_index-1][2]
             self.reading_text.tag_add('incorrect', f"1.{starting_pos}", f"1.{ending_pos}")
             self.reading_text.tag_configure('incorrect', underline=True, underlinefg='red')
         
         self.start_index += len(word) + 1
-
-        # for index, word in enumerate(user_text):
-        #     if user_text[index] != text_list[index]:
-
-
-        # word = text_list[self.word_to_highlight]
-        # word_pos = self.get_word_indicies(word)
-        # starting_pos = word_pos[0]
-        # ending_pos = word_pos[1]
-        # self.reading_text.tag_add('highlightline', f"1.{starting_pos}", f"1.{ending_pos}")
-        # self.reading_text.tag_configure('highlightline', background='yellow')
-        # self.word_to_highlight +=1  
 
 
     def return_text(self):
