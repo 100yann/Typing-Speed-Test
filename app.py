@@ -11,73 +11,87 @@ customtkinter.set_default_color_theme("green")
 source_text = all_texts[1]
 text_list = source_text.split()
 REMAINING_TIME = 60
+words_and_indices = {}
 
 
 class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
         self.source_text = source_text
-        self.geometry('800x800')
+        self.geometry('1080x1080')
         self.title('Typing Speed Test')
+        self.state('zoomed')
         self.config(padx=50, pady=100)
-
-        
-
-        self.reading_text = tkinter.Text(master=self,
-        height=5,
-        wrap='word')
+        self.reading_text = tkinter.Text(master=self, 
+                                         height=10,
+                                         width=125,
+                                         wrap='word',
+                                         font=('Ardoise Std', 16)
+                                         )
         self.reading_text.insert("0.0", self.source_text)
-        self.reading_text.configure(state='disabled')
+        self.reading_text.configure(state='disabled', padx=10, pady=10)
         self.reading_text.place(relx=0.5, rely=0.2, anchor="center")
         self.start_index = 0
         self.word_to_highlight = 0
         self.remove_index = 0
-        self.highlight_word()
 
         self.textbox = customtkinter.CTkTextbox(master=self,
                                 height=100,
-                                width=300,
+                                width=250,
                                 wrap='word',
                                 )
         self.textbox.focus_set()
         self.textbox.place(relx=0.5, rely=0.5, anchor="center")
         self.textbox.bind('<space>', lambda event: (self.return_text(), self.highlight_word()))
         self.textbox.bind('<Return>', lambda event: self.correct_words())
+        self.highlight_word()
+
         self.timer()
 
 
 
 
-    def get_word_indicies(self, word, func):
-        if func == "add":
-            indices = (self.start_index, self.start_index+len(word))
-            self.start_index += len(word) + 1
-            return indices
-        elif func == "remove":
-            if self.word_to_highlight > 0:
-                indices = (self.remove_index, self.remove_index+len(word))
-                self.remove_index += len(word) + 1
-                return indices
-                
-
-
+    def get_word_indicies(self, word):
+        word_indices = (self.start_index, self.start_index+len(word))
+        return word_indices
+        
 
     def highlight_word(self):
-        if self.word_to_highlight > 0:
-            previous_word = text_list[self.word_to_highlight - 1]
-            try:
-                previous_word_pos = self.get_word_indicies(previous_word, "remove")
-                self.reading_text.tag_remove('highlightline', f"1.{previous_word_pos[0]}", f"1.{previous_word_pos[1]}")
-            except _tkinter.TclError:
-                pass
+        user_text = self.return_text()
+        last_index = len(user_text)
+                
+        if last_index > 0:
+            self.reading_text.tag_delete('highlight', 
+                                         f'1.{words_and_indices[last_index-1][1]}', 
+                                         f'1.{words_and_indices[last_index-1][2]}')
 
-        word = text_list[self.word_to_highlight]
-        word_pos = self.get_word_indicies(word, "add")
-        starting_pos = word_pos[0]
-        ending_pos = word_pos[1]
-        self.reading_text.tag_add('highlightline', f"1.{starting_pos}", f"1.{ending_pos}")
-        self.reading_text.tag_configure('highlightline', background='yellow')
-        self.word_to_highlight +=1  
+        word = text_list[last_index]   
+        word_pos = self.get_word_indicies(word)
+        starting_pos, ending_pos = word_pos[0], word_pos[1]
+        self.reading_text.tag_add('highlight', f"1.{starting_pos}", f"1.{ending_pos}")
+        self.reading_text.tag_configure('highlight', background='yellow')
+        words_and_indices[last_index] = [word, starting_pos, ending_pos]
+
+        
+
+        if last_index > 0 and user_text[last_index-1] != text_list[last_index-1]:
+            starting_pos, ending_pos = words_and_indices[last_index-1][1], words_and_indices[last_index-1][2]
+            self.reading_text.tag_add('incorrect', f"1.{starting_pos}", f"1.{ending_pos}")
+            self.reading_text.tag_configure('incorrect', underline=True, underlinefg='red')
+        
+        self.start_index += len(word) + 1
+
+        # for index, word in enumerate(user_text):
+        #     if user_text[index] != text_list[index]:
+
+
+        # word = text_list[self.word_to_highlight]
+        # word_pos = self.get_word_indicies(word)
+        # starting_pos = word_pos[0]
+        # ending_pos = word_pos[1]
+        # self.reading_text.tag_add('highlightline', f"1.{starting_pos}", f"1.{ending_pos}")
+        # self.reading_text.tag_configure('highlightline', background='yellow')
+        # self.word_to_highlight +=1  
 
 
     def return_text(self):
