@@ -40,6 +40,8 @@ class App(customtkinter.CTk):
                                 height=100,
                                 width=250,
                                 wrap='word',
+                                font=('Consolas', 30),
+                                bg_color='gray25'
                                 )
         self.textbox.place(relx=0.5, rely=0.5, anchor="center")
         self.textbox.focus_set()
@@ -62,6 +64,10 @@ class App(customtkinter.CTk):
             self.reading_text.tag_delete('highlight', 
                                          f'1.{words_and_indices[self.written_word-1][1]}', 
                                          f'1.{words_and_indices[self.written_word-1][2]}')
+            for key in words_and_indices.keys():
+                self.reading_text.tag_add('disabled', f"1.{words_and_indices[key][1]}", f"1.{words_and_indices[key][2]}")
+                self.reading_text.tag_configure('disabled', foreground='gray')
+
 
         word = text_list[self.written_word]   
         word_pos = self.get_word_indicies(word)
@@ -75,8 +81,9 @@ class App(customtkinter.CTk):
         #     self.reading_text.tag_add('incorrect', f"1.{starting_pos}", f"1.{ending_pos}")
         #     self.reading_text.tag_configure('incorrect', underline=True, underlinefg='red')
         if self.written_word > 0 and input_word == text_list[self.written_word-1]:
-            print(input_word, text_list[self.written_word-1])
             self.correct_words += 1
+        
+
 
         self.start_index += len(word) + 1
         self.written_word += 1
@@ -84,6 +91,7 @@ class App(customtkinter.CTk):
 
 
     def return_text(self):
+
         get_input = (self.textbox.get('1.0', 'end')).strip()
         for char in get_input:
             if char.isalpha():
