@@ -22,7 +22,6 @@ class App(customtkinter.CTk):
         self.title('Typing Speed Test')
         self.state('zoomed')
         self.config(padx=50, pady=100)
-        self.option_add('*Text.Font', "consolas 30")
         self.reading_text = tkinter.Text(master=self, 
                                          height=10,
                                          width=80,
@@ -32,7 +31,6 @@ class App(customtkinter.CTk):
         self.reading_text.insert("0.0", self.source_text)
         self.reading_text.configure(state='disabled', padx=10, pady=10)
         self.reading_text.place(relx=0.5, rely=0.2, anchor="center")
-
         self.start_index = 0
         self.word_to_highlight = 0
         self.written_word = 0
@@ -100,7 +98,7 @@ class App(customtkinter.CTk):
     def timer(self):
         global REMAINING_TIME
         REMAINING_TIME -= 1
-        if REMAINING_TIME > 50:
+        if REMAINING_TIME > 0:
             self.after(1000, self.timer)
             self.entry = customtkinter.CTkEntry(master=self,
                                     placeholder_text=REMAINING_TIME,
